@@ -1,27 +1,123 @@
-#container {
-  text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+:host {
+  --page-bg: #f4f7fb;
+  --card-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.page-content {
+  --background: var(--page-bg);
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+ion-card {
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
 }
 
-#container a {
-  text-decoration: none;
+.hero-card {
+  background: linear-gradient(135deg, #1f3c88, #39a0ed);
+  color: #fff;
+}
+
+.hero-card ion-card-subtitle,
+.hero-card ion-card-title,
+.hero-card p {
+  color: #fff;
+}
+
+.hero-metric {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-number {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.summary-card {
+  height: 100%;
+}
+
+.summary-card ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-label {
+  color: var(--ion-color-medium);
+  font-size: 0.95rem;
+}
+
+.summary-value {
+  font-size: 2rem;
+}
+
+.value-small {
+  font-size: 1.2rem;
+}
+
+.filters-grid {
+  padding: 0;
+}
+
+.filters-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.clear-button {
+  border: none;
+  background: var(--ion-color-primary);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ticket-avatar {
+  width: 44px;
+  height: 44px;
+}
+
+.ticket-avatar div {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.ticket-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+ion-list {
+  background: transparent;
+}
+
+ion-item {
+  --border-radius: 16px;
+  --inner-padding-end: 8px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .hero-number {
+    font-size: 2.4rem;
+  }
 }

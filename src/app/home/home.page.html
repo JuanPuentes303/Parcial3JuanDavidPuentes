@@ -1,20 +1,167 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Monitor de tickets de soporte</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="page-content">
+  <ion-grid fixed>
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="hero-card">
+          <ion-card-header>
+            <ion-card-subtitle>Mesa de ayuda · consumo de APIs</ion-card-subtitle>
+            <ion-card-title>Dashboard de seguimiento</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="hero-metric">
+              <span class="hero-number">{{ openTickets }}</span>
+              <div>
+                <strong>tickets activos</strong>
+                <p>métrica calculada dinámicamente con base en la respuesta del API.</p>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+    <ion-row>
+      <ion-col size="12" sizeMd="4">
+        <ion-card class="summary-card">
+          <ion-card-content>
+            <span class="summary-label">Total filtrado</span>
+            <strong class="summary-value">{{ totalTickets }}</strong>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" sizeMd="4">
+        <ion-card class="summary-card">
+          <ion-card-content>
+            <span class="summary-label">Críticos</span>
+            <strong class="summary-value">{{ criticalTickets }}</strong>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" sizeMd="4">
+        <ion-card class="summary-card">
+          <ion-card-content>
+            <span class="summary-label">Fuente</span>
+            <strong class="summary-value value-small">JSONPlaceholder</strong>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Filtro interactivo</ion-card-title>
+            <ion-card-subtitle>Actualiza el listado en tiempo real</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid class="filters-grid">
+              <ion-row>
+                <ion-col size="12" sizeLg="4">
+                  <ion-searchbar
+                    [(ngModel)]="searchTerm"
+                    placeholder="Buscar por título, descripción o solicitante"
+                    debounce="250"
+                  ></ion-searchbar>
+                </ion-col>
+                <ion-col size="12" sizeMd="6" sizeLg="3">
+                  <ion-item>
+                    <ion-label>Estado</ion-label>
+                    <ion-select [(ngModel)]="selectedStatus" interface="popover" placeholder="Todos">
+                      <ion-select-option value="">Todos</ion-select-option>
+                      @for (status of statuses; track status) {
+                        <ion-select-option [value]="status">{{ status }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" sizeMd="6" sizeLg="3">
+                  <ion-item>
+                    <ion-label>Prioridad</ion-label>
+                    <ion-select [(ngModel)]="selectedPriority" interface="popover" placeholder="Todas">
+                      <ion-select-option value="">Todas</ion-select-option>
+                      @for (priority of priorities; track priority) {
+                        <ion-select-option [value]="priority">{{ priority }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" sizeLg="2">
+                  <ion-item>
+                    <ion-label position="stacked">Máx. horas</ion-label>
+                    <ion-input [(ngModel)]="maxHours" type="number" min="1" placeholder="Ej: 4"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12">
+                  <div class="filters-actions">
+                    <ion-note color="medium">Usa los filtros para limitar tickets por texto, estado, prioridad u horas estimadas.</ion-note>
+                    <button class="clear-button" type="button" (click)="clearFilters()">Limpiar filtros</button>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Tickets encontrados</ion-card-title>
+            <ion-card-subtitle>
+              @if (isLoading) {
+                Cargando datos desde el API...
+              } @else {
+                {{ totalTickets }} resultado(s) coinciden con el filtro actual.
+              }
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list lines="full">
+              @if (isLoading) {
+                <ion-item>
+                  <ion-label>Cargando tickets...</ion-label>
+                </ion-item>
+              } @else if (!filteredTickets.length) {
+                <ion-item>
+                  <ion-label>No se encontraron tickets con los filtros aplicados.</ion-label>
+                </ion-item>
+              } @else {
+                @for (ticket of filteredTickets; track ticket.id) {
+                  <ion-item>
+                    <ion-avatar slot="start" class="ticket-avatar">
+                      <div>{{ ticket.avatarInitials }}</div>
+                    </ion-avatar>
+                    <ion-label>
+                      <h2>{{ ticket.title }}</h2>
+                      <p>{{ ticket.description }}</p>
+                      <p>
+                        <strong>{{ ticket.requesterName }}</strong>
+                        · {{ ticket.requesterEmail }} · {{ ticket.category }}
+                      </p>
+                      <div class="ticket-meta">
+                        <ion-badge [color]="getStatusColor(ticket.status)">{{ ticket.status }}</ion-badge>
+                        <ion-badge [color]="getPriorityColor(ticket.priority)">{{ ticket.priority }}</ion-badge>
+                        <span>{{ ticket.estimatedHours }} h</span>
+                      </div>
+                    </ion-label>
+                  </ion-item>
+                }
+              }
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
